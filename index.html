@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IdleOn miniToolBox</title>
+<meta name="description" content="Small Legends of Idleon tools in one place: anvil craft planner, cog optimizer, lab route, star chart. One account, EN/RU.">
+<link rel="icon" href="img/craft.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#f3f4f8; --panel:#ffffff; --panel2:#f7f8fb; --ink:#1b1f33; --muted:#666c86; --line:#dcdfea;
+  --gold:#b98200; --gold-bg:#fff1c7; --ok:#1f8a55; --ok-bg:#d9f2e4; --bad:#c4391a;
+  --head:#151a30; --head-ink:#e6e8f4; --head-muted:#9097b3; --head-line:#262c48;
+  --display:"Chakra Petch",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  --hh:56px; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1020; --panel:#151a30; --panel2:#11162a; --ink:#e6e8f4; --muted:#9097b3; --line:#262c48;
+  --gold:#ffcb45; --gold-bg:#3b3112; --ok:#5fd394; --ok-bg:#143326; --bad:#ff8a6b;
+  --head:#0a0d1a; --head-line:#20263f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1020; --panel:#151a30; --panel2:#11162a; --ink:#e6e8f4; --muted:#9097b3; --line:#262c48;
+  --gold:#ffcb45; --gold-bg:#3b3112; --ok:#5fd394; --ok-bg:#143326; --bad:#ff8a6b;
+  --head:#0a0d1a; --head-line:#20263f; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45}
+[hidden]{display:none!important}
+img.px{image-rendering:pixelated}
+button{font:500 13px var(--body);cursor:pointer;border-radius:6px}
+
+/* header */
+.top{position:sticky;top:0;z-index:30;height:var(--hh);background:var(--head);color:var(--head-ink);border-bottom:1px solid var(--head-line);
+  display:flex;align-items:center;gap:12px;padding:0 max(12px,env(safe-area-inset-right,0px)) 0 max(12px,env(safe-area-inset-left,0px))}
+.brand{display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none;flex:none}
+.brand img{width:36px;height:36px}
+.brand b{font-family:var(--display);font-size:18px;letter-spacing:.02em;white-space:nowrap}
+.brand b span{color:#ffcb45}
+nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1}
+nav::-webkit-scrollbar{display:none}
+nav a{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 6px;border-radius:6px;color:var(--head-muted);text-decoration:none;white-space:nowrap;font-weight:500}
+nav a img{width:28px;height:28px}
+nav a:hover{color:var(--head-ink);background:#ffffff10}
+nav a[aria-current="page"]{color:var(--head-ink);background:#ffffff1a;box-shadow:inset 0 -2px 0 #ffcb45}
+.right{display:flex;align-items:center;gap:8px;flex:none}
+.acct{display:inline-flex;align-items:center;gap:6px;background:#ffffff12;color:var(--head-ink);border:1px solid var(--head-line);padding:6px 10px;max-width:200px}
+.acct .dot{width:8px;height:8px;border-radius:50%;background:#5c637e;flex:none}
+.acct.on .dot{background:#5fd394}
+.acct span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lang{display:inline-flex;border:1px solid var(--head-line);border-radius:6px;overflow:hidden}
+.lang button{background:transparent;color:var(--head-muted);border-radius:0;padding:5px 9px;font:600 12px var(--mono);border:0}
+.lang button[aria-pressed="true"]{background:var(--head-ink);color:var(--head)}
+.ext{color:var(--head-muted);text-decoration:none;font-size:18px;padding:2px 6px}
+.ext:hover{color:var(--head-ink)}
+
+/* account panel */
+.panel{position:fixed;z-index:40;top:calc(var(--hh) + 6px);right:max(12px,env(safe-area-inset-right,0px));width:min(440px,calc(100vw - 24px));
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 40px rgb(0 0 0 / .28);padding:14px;display:grid;gap:10px}
+.panel h3{margin:0;font-family:var(--display);font-size:16px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel input[type=text]{font:500 14px var(--mono);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 10px;flex:1 1 160px;min-width:0}
+.panel textarea{width:100%;height:70px;resize:vertical;font:12px var(--mono);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px}
+.btn{background:var(--ink);color:var(--bg);border:0;padding:7px 12px}
+.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);padding:7px 12px}
+.file{position:relative;display:inline-flex}
+.file input{position:absolute;opacity:0;width:1px;height:1px}
+.note{font-size:12.5px;color:var(--muted);margin:0}
+.note a{color:inherit}
+.or{font-size:11.5px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.msg{font-size:13px;color:var(--ok)} .msg.err{color:var(--bad)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid #ffcb45;outline-offset:2px}
+
+/* home */
+.home{max-width:1180px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px));display:grid;gap:22px}
+.hero h1{font-family:var(--display);font-size:clamp(26px,4vw,40px);margin:0 0 6px;letter-spacing:.01em;text-wrap:balance}
+.hero h1 span{color:var(--gold)}
+.hero p{margin:0;color:var(--muted);max-width:70ch;font-size:15px}
+.status{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.status b{font-family:var(--display);font-size:16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:14px}
+.card{display:grid;grid-template-columns:72px 1fr;gap:4px 14px;align-content:start;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;color:inherit;text-decoration:none;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--gold)}
+@media (prefers-reduced-motion:no-preference){.card:hover{transform:translateY(-2px)}}
+.card .ico{grid-row:1/4;width:72px;height:72px;display:grid;place-items:center;background:#1d2233;border-radius:8px}
+.card .ico img{width:56px;height:56px}
+.card h2{margin:0;font-family:var(--display);font-size:18px}
+.card p{margin:0;color:var(--muted);font-size:13.5px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.tag{font:600 11px var(--mono);padding:1px 7px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+.tag.ok{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.foot{font-size:12.5px;color:var(--muted);margin:0;max-width:90ch}
+.foot a{color:inherit}
+
+/* tool frames */
+.frames{position:relative;height:calc(100vh - var(--hh));height:calc(100dvh - var(--hh))}
+.frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg)}
+.loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:14px}
+
+@media (max-width:760px){.brand b{display:none}nav a[data-go="home"]{display:none}nav a span{display:none}nav a{padding:4px 6px}.acct{max-width:120px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#home" data-go="home"><img class="px" src="img/craft.png" alt=""><b>IdleOn <span>mini</span>ToolBox</b></a>
+  <nav id="nav" aria-label="Tools"></nav>
+  <div class="right">
+    <a id="ext" class="ext" href="#" target="_blank" rel="noopener" hidden title="">↗</a>
+    <button id="acctBtn" class="acct" type="button" aria-expanded="false"><i class="dot"></i><span id="acctName"></span></button>
+    <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ru">RU</button></div>
+  </div>
+</header>
+
+<div id="panel" class="panel" hidden>
+  <h3 data-i="acct_title"></h3>
+  <form id="nickForm" class="row">
+    <input id="nick" type="text" autocomplete="username" spellcheck="false">
+    <button class="btn" type="submit" data-i="use_nick"></button>
+  </form>
+  <p class="note" data-i="nick_hint"></p>
+  <div class="or" data-i="or"></div>
+  <textarea id="raw" spellcheck="false"></textarea>
+  <div class="row">
+    <button id="useRaw" class="btn" type="button" data-i="use_raw"></button>
+    <label class="file ghost"><span data-i="open"></span><input id="file" type="file" accept=".json,.txt,application/json,text/plain"></label>
+    <button id="forget" class="ghost" type="button" data-i="forget"></button>
+  </div>
+  <div id="msg" class="msg" role="status"></div>
+  <p class="note" data-i="acct_note"></p>
+</div>
+
+<main id="home" class="home">
+  <section class="hero">
+    <h1>IdleOn <span>mini</span>ToolBox</h1>
+    <p data-i="hero"></p>
+  </section>
+  <div class="status" id="status"></div>
+  <div class="cards" id="cards"></div>
+  <p class="foot" data-i="foot"></p>
+</main>
+<div id="frames" class="frames" hidden></div>
+
+<script>
+// Tools hosted on the same origin (stimdesu.github.io). On that origin the hub can reach into each
+// tool's page: hide its own header, hand it the account and switch its language. Elsewhere (local
+// preview) the tools still open, they just keep their own header and input.
+const ORIGIN = location.hostname === "stimdesu.github.io" || new URLSearchParams(location.search).has("local") ? "" : "https://stimdesu.github.io";  // ?local: tools served next to the hub (dev)
+const TOOLS = [
+  { id:"craft", icon:"craft.png", url:"/idleon-craft-planner/", repo:"idleon-craft-planner", hashNick:true,
+    langKey:"cp-lang", srcKey:"cp-src", hide:".wrap > header, .wrap > .card:first-of-type",
+    nick:{ input:"#nick", form:"#nickForm" }, raw:{ input:"#save", btn:"#go" },
+    en:{ name:"Craft Planner", desc:"Anvil tabs with game icons, a plan of what to craft, materials you have and miss, and how much ore to smelt." },
+    ru:{ name:"Планировщик крафта", desc:"Вкладки наковальни с игровыми иконками, план крафта, какие материалы есть и чего не хватает, сколько руды переплавить." },
+    tags:["nick","raw","enru"] },
+  { id:"cogs", icon:"cogs.png", url:"/cogtimizer/", repo:"cogtimizer",
+    langKey:"lang", hide:null,
+    nick:{ input:"#input", btn:"#load" }, raw:{ input:"#input", btn:"#load" },
+    en:{ name:"Cogtimizer", desc:"Construction cog board optimizer: finds a better cog layout for build rate, EXP and flaggy speed." },
+    ru:{ name:"Шестерёнки", desc:"Оптимизатор доски шестерёнок в строительстве: подбирает раскладку под скорость стройки, опыт и флаги." },
+    tags:["nick","raw","enru"] },
+  { id:"lab", icon:"lab.png", url:"/idleon-lab-route/", repo:"idleon-lab-route",
+    langKey:null, hide:"main > header, main > section.card:first-of-type",
+    nick:{ tab:"#tab-name", input:"#username", btn:"#load-profile" }, raw:{ tab:"#tab-raw", input:"#raw-json", btn:"#load-json" },
+    en:{ name:"Lab Route", desc:"World 4 Laboratory: places your characters to connect the most Mainframe bonuses and jewels." },
+    ru:{ name:"Маршрут лаборатории", desc:"Лаборатория 4-го мира: расставляет персонажей так, чтобы подключить больше бонусов Mainframe и самоцветов." },
+    tags:["nick","raw","ru"] },
+  { id:"stars", icon:"stars.svg", url:"/idleon-star-chart/", repo:"idleon-star-chart", hashNick:true,
+    langKey:"ss-lang", srcKey:"ss-src", hide:".wrap > header, .wrap > .input",
+    nick:{ input:"#nick", form:"#nickForm" }, raw:{ input:"#save", btn:"#go" },
+    en:{ name:"Star Chart", desc:"Every constellation per character: done, one click away, or still missing, with maps and screenshots." },
+    ru:{ name:"Созвездия", desc:"Все созвездия по персонажам: выполнено, остался клик или ещё не хватает, с картами и скриншотами." },
+    tags:["nick","raw","enru"] },
+];
+const LINKS = [
+  { id:"rus", icon:"rus.png", href:"https://github.com/StimDesu/IdleOn-Rusificator",
+    en:{ name:"Russian translation", desc:"Fan Russian translation of the Steam game: texts, fonts with Cyrillic and redrawn images. A download, not a web page." },
+    ru:{ name:"Русификатор", desc:"Фанатский перевод Steam-версии: тексты, шрифты с кириллицей и перерисованные картинки. Скачивается, работает в самой игре." },
+    tags:["steam"] },
+];
+const T = {
+  en: {
+    home:"Home", acct_title:"Account for all tools", use_nick:"Use username", nick_ph:"IdleOn username",
+    nick_hint:'The profile you published on <a href="https://www.idleonefficiency.com" target="_blank" rel="noopener">idleonefficiency.com</a>; it is only as fresh as your last publish.',
+    or:"or raw save JSON", raw_ph:"Raw game JSON (IdleOn Efficiency → Raw data)", use_raw:"Use this save", open:"Open file…", forget:"Forget",
+    acct_note:"Stored only in this browser. Every tool you open here gets the same account.",
+    no_acct:"No account", m_nick:n=>`Username ${n} set for all tools.`, m_raw:"Save set for all tools.", m_bad:"This is not JSON.", m_forgot:"Account removed.",
+    hero:"Small tools for Legends of Idleon in one place. Set your account once in the top right corner, then switch between tools: each one gets your save and language automatically.",
+    st_none:"No account yet: open the account button in the top right to enter a username or paste a raw save.",
+    st_nick:n=>`Account: <b>${n}</b> (published profile)`, st_raw:n=>`Account: <b>raw save</b>${n ? `, ${n} characters` : ""}`,
+    t_nick:"username", t_raw:"raw JSON", t_enru:"EN / RU", t_ru:"RU", t_steam:"Steam mod",
+    ext:"Open in a new tab", loading:"Loading…",
+    foot:'Prototype. Every tool still lives in its own repository and works on its own; this page only gathers them under one header. Legends of Idleon and its art belong to Lavaflame2; these are unofficial fan tools.'
+  },
+  ru: {
+    home:"Главная", acct_title:"Аккаунт для всех инструментов", use_nick:"Взять по нику", nick_ph:"Ник в IdleOn",
+    nick_hint:'Берётся профиль, опубликованный на <a href="https://www.idleonefficiency.com" target="_blank" rel="noopener">idleonefficiency.com</a>: он свежий на момент последней публикации.',
+    or:"или raw JSON сохранения", raw_ph:"Raw JSON игры (IdleOn Efficiency → Raw data)", use_raw:"Взять это сохранение", open:"Открыть файл…", forget:"Забыть",
+    acct_note:"Хранится только в этом браузере. Каждый инструмент здесь получает один и тот же аккаунт.",
+    no_acct:"Нет аккаунта", m_nick:n=>`Ник ${n} задан для всех инструментов.`, m_raw:"Сохранение задано для всех инструментов.", m_bad:"Это не JSON.", m_forgot:"Аккаунт удалён.",
+    hero:"Небольшие инструменты для Legends of Idleon в одном месте. Задайте аккаунт один раз в правом верхнем углу и переключайтесь между инструментами: каждый сам получит сохранение и язык.",
+    st_none:"Аккаунт не задан: нажмите кнопку аккаунта справа вверху, чтобы ввести ник или вставить raw-сохранение.",
+    st_nick:n=>`Аккаунт: <b>${n}</b> (опубликованный профиль)`, st_raw:n=>`Аккаунт: <b>raw-сохранение</b>${n ? `, персонажей ${n}` : ""}`,
+    t_nick:"ник", t_raw:"raw JSON", t_enru:"EN / RU", t_ru:"RU", t_steam:"мод для Steam",
+    ext:"Открыть в новой вкладке", loading:"Загрузка…",
+    foot:'Заготовка. Каждый инструмент по-прежнему живёт в своём репозитории и работает сам по себе, эта страница только собирает их под одной шапкой. Legends of Idleon и её графика принадлежат Lavaflame2; это неофициальные фанатские инструменты.'
+  }
+};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); return true; } catch(e){ return false; } }, del(k){ try { localStorage.removeItem(k); } catch(e){} } };
+let lang = store.get("tb-lang") || ((navigator.languages || [navigator.language || "en"]).some(l => /^ru\b/i.test(l)) ? "ru" : "en");
+let L = T[lang];
+// account: { nick } or { raw }; the raw save is also kept in memory if it is too big for storage
+let acct = null;
+try { acct = JSON.parse(store.get("tb-acct") || "null"); } catch(e){ acct = null; }
+const frames = {};        // tool id -> iframe
+let view = "home";
+
+const toolUrl = t => ORIGIN + t.url + (t.hashNick && acct && acct.nick ? "#" + encodeURIComponent(acct.nick) : "");
+const charCount = raw => { try { let o = JSON.parse(raw); if (o.data && !o.ChestOrder) o = o.data; let n = 0; while (("Lv0_" + n) in o) n++; return n; } catch(e){ return 0; } };
+
+// ---------- tool glue (same origin only) ----------
+function prepStorage(t){
+  if (t.langKey) store.set(t.langKey, lang);
+  if (t.srcKey && acct && acct.raw) store.set(t.srcKey, "raw");   // stop the tool restoring an older username over the hub's save
+}
+function glue(t, f){
+  let doc;
+  try { doc = f.contentDocument; if (!doc || !doc.body) return; } catch(e){ return; }
+  if (t.hide && !doc.getElementById("tb-style")) {
+    const st = doc.createElement("style"); st.id = "tb-style";
+    st.textContent = t.hide + "{display:none!important}";
+    doc.head.appendChild(st);
+  }
+  if (!acct || f.dataset.acct === acctKey()) return;
+  f.dataset.acct = acctKey();
+  const how = acct.nick ? t.nick : t.raw, val = acct.nick || acct.raw;
+  if (!how) return;
+  if (acct.nick && t.hashNick) return;              // the URL hash already loads the profile
+  const q = s => doc.querySelector(s);
+  if (how.tab && q(how.tab)) q(how.tab).click();
+  const input = q(how.input); if (!input) return;
+  input.value = val;
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  if (how.form && q(how.form)) q(how.form).requestSubmit();
+  else if (how.btn && q(how.btn)) q(how.btn).click();
+}
+const acctKey = () => acct ? (acct.nick ? "n:" + acct.nick : "r:" + (acct.raw || "").length) : "";
+function openTool(t){
+  let f = frames[t.id];
+  if (!f) {
+    prepStorage(t);
+    f = document.createElement("iframe");
+    f.title = t[lang].name;
+    f.src = toolUrl(t);
+    f.addEventListener("load", () => { if (f.src !== "about:blank") glue(t, f); });
+    $("#frames").appendChild(f);
+    frames[t.id] = f;
+  }
+  for (const id in frames) frames[id].hidden = id !== t.id;
+}
+function reloadFrames(){
+  for (const id in frames) {
+    const t = TOOLS.find(x => x.id === id), f = frames[id];
+    prepStorage(t); delete f.dataset.acct;
+    f.src = "about:blank"; setTimeout(() => { f.src = toolUrl(t); }, 30);
+  }
+}
+function setToolLang(){
+  for (const id in frames) {
+    const t = TOOLS.find(x => x.id === id), f = frames[id];
+    prepStorage(t);
+    try {
+      const w = f.contentWindow, b = w.document.querySelector(`.lang button[data-lang="${lang}"]`);
+      if (b) b.click(); else if (typeof w.setLang === "function") w.setLang(lang);
+    } catch(e){ f.src = toolUrl(t); }
+    f.title = t[lang].name;
+  }
+}
+
+// ---------- rendering ----------
+function render(){
+  L = T[lang];
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i]").forEach(el => { const v = L[el.dataset.i]; if (/hint|foot/.test(el.dataset.i)) el.innerHTML = v; else el.textContent = v; });
+  $("#nick").placeholder = L.nick_ph; $("#raw").placeholder = L.raw_ph;
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+  $("#nav").innerHTML = `<a href="#home" data-go="home"${view === "home" ? ' aria-current="page"' : ""}><span>${L.home}</span></a>`
+    + TOOLS.map(t => `<a href="#${t.id}" data-go="${t.id}"${view === t.id ? ' aria-current="page"' : ""} title="${esc(t[lang].name)}"><img class="px" src="img/${t.icon}" alt=""><span>${esc(t[lang].name)}</span></a>`).join("");
+  $("#acctBtn").classList.toggle("on", !!acct);
+  $("#acctName").textContent = acct ? (acct.nick || "raw JSON") : L.no_acct;
+  $("#status").innerHTML = !acct ? `<span class="note">${L.st_none}</span>` : acct.nick ? `<span>${L.st_nick(esc(acct.nick))}</span>` : `<span>${L.st_raw(charCount(acct.raw))}</span>`;
+  const tag = k => `<span class="tag${k === "nick" || k === "raw" ? " ok" : ""}">${L["t_" + k]}</span>`;
+  $("#cards").innerHTML = TOOLS.map(t => `<a class="card" href="#${t.id}" data-go="${t.id}"><span class="ico"><img class="px" src="img/${t.icon}" alt=""></span><h2>${esc(t[lang].name)}</h2><p>${esc(t[lang].desc)}</p><div class="tags">${t.tags.map(tag).join("")}</div></a>`).join("")
+    + LINKS.map(t => `<a class="card" href="${t.href}" target="_blank" rel="noopener"><span class="ico"><img class="px" src="img/${t.icon}" alt=""></span><h2>${esc(t[lang].name)} ↗</h2><p>${esc(t[lang].desc)}</p><div class="tags">${t.tags.map(tag).join("")}</div></a>`).join("");
+  const t = TOOLS.find(x => x.id === view);
+  $("#ext").hidden = !t;
+  if (t) { $("#ext").href = toolUrl(t); $("#ext").title = L.ext; }
+  document.title = t ? `${t[lang].name} · IdleOn miniToolBox` : "IdleOn miniToolBox";
+}
+function route(){
+  const id = location.hash.slice(1) || "home";
+  const t = TOOLS.find(x => x.id === id);
+  view = t ? id : "home";
+  $("#home").hidden = !!t; $("#frames").hidden = !t;
+  if (t) openTool(t);
+  store.set("tb-view", view);
+  render();
+}
+
+// ---------- account ----------
+function setAccount(a, msgKey, arg){
+  acct = a;
+  if (!a) store.del("tb-acct");
+  else if (!store.set("tb-acct", JSON.stringify(a))) store.del("tb-acct");   // too big for storage: keep it for this visit
+  showMsg(msgKey, arg);
+  reloadFrames();
+  render();
+}
+function showMsg(key, arg, err){ const v = L[key]; $("#msg").className = "msg" + (err ? " err" : ""); $("#msg").textContent = key ? (typeof v === "function" ? v(arg) : v) : ""; }
+$("#acctBtn").addEventListener("click", e => { e.stopPropagation(); const p = $("#panel"); p.hidden = !p.hidden; $("#acctBtn").setAttribute("aria-expanded", !p.hidden); if (!p.hidden) { $("#nick").value = acct && acct.nick || ""; $("#nick").focus(); } });
+document.addEventListener("click", e => { if (!$("#panel").hidden && !e.target.closest("#panel")) { $("#panel").hidden = true; $("#acctBtn").setAttribute("aria-expanded", "false"); } });
+$("#nickForm").addEventListener("submit", e => { e.preventDefault(); const n = $("#nick").value.trim(); if (/^[A-Za-z0-9_\-]{2,30}$/.test(n)) setAccount({ nick: n }, "m_nick", n); });
+$("#useRaw").addEventListener("click", () => { const t = $("#raw").value.trim(); try { JSON.parse(t); } catch(e){ showMsg("m_bad", null, true); return; } setAccount({ raw: t }, "m_raw"); $("#raw").value = ""; });
+$("#file").addEventListener("change", e => { const f = e.target.files[0]; if (f) f.text().then(t => { $("#raw").value = t; $("#useRaw").click(); }); e.target.value = ""; });
+$("#forget").addEventListener("click", () => setAccount(null, "m_forgot"));
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => { lang = b.dataset.lang; store.set("tb-lang", lang); render(); setToolLang(); }));
+addEventListener("hashchange", route);
+if (!location.hash && store.get("tb-view") && store.get("tb-view") !== "home") location.hash = store.get("tb-view");
+route();
+</script>
+</body>
+</html>
