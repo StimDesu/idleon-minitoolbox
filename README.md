@@ -7,6 +7,7 @@ One header for my small Legends of Idleon tools:
 | Tool | Repository |
 |---|---|
 | Craft Planner: anvil crafts, materials, forge smelting | [idleon-craft-planner](https://github.com/StimDesu/idleon-craft-planner) |
+| Cooking Planner: kitchen speed breakdown, meal leveling plan, recipe discovery | [idleon-cooking-planner](https://github.com/StimDesu/idleon-cooking-planner) |
 | Cogtimizer: construction cog board optimizer | [cogtimizer](https://github.com/StimDesu/cogtimizer) |
 | Lab Route: World 4 Laboratory placement | [idleon-lab-route](https://github.com/StimDesu/idleon-lab-route) |
 | Star Chart: constellations per character | [idleon-star-chart](https://github.com/StimDesu/idleon-star-chart) |

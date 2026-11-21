@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>IdleOn miniToolBox</title>
-<meta name="description" content="Small Legends of Idleon tools in one place: anvil craft planner, cog optimizer, lab route, star chart. One account, EN/RU.">
+<meta name="description" content="Small Legends of Idleon tools in one place: anvil craft planner, cooking planner, cog optimizer, lab route, star chart. One account, EN/RU.">
 <link rel="icon" href="img/craft.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
@@ -151,6 +151,12 @@ const TOOLS = [
     nick:{ input:"#nick", form:"#nickForm" }, raw:{ input:"#save", btn:"#go" },
     en:{ name:"Craft Planner", desc:"Anvil tabs with game icons, a plan of what to craft, materials you have and miss, and how much ore to smelt." },
     ru:{ name:"Планировщик крафта", desc:"Вкладки наковальни с игровыми иконками, план крафта, какие материалы есть и чего не хватает, сколько руды переплавить." },
+    tags:["nick","raw","enru"] },
+  { id:"cook", icon:"cooking.png", url:"/idleon-cooking-planner/", repo:"idleon-cooking-planner", hashNick:true,
+    langKey:"ck-lang", srcKey:"ck-src", hide:".wrap > header, .wrap > div.card:has(#nickForm)",
+    nick:{ input:"#nick", form:"#nickForm" }, raw:{ input:"#save", btn:"#go" },
+    en:{ name:"Cooking Planner", desc:"World 4 kitchens from your save: where cooking speed comes from, which meals to level next, and which spices find new recipes." },
+    ru:{ name:"Планировщик кулинарии", desc:"Кухни 4-го мира по вашему сохранению: откуда скорость готовки, какие блюда качать дальше и какими специями открыть новые рецепты." },
     tags:["nick","raw","enru"] },
   { id:"cogs", icon:"cogs.png", url:"/cogtimizer/", repo:"cogtimizer",
     langKey:"lang", hide:null,
