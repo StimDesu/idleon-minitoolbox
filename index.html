@@ -147,7 +147,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{
 const ORIGIN = location.hostname === "stimdesu.github.io" || new URLSearchParams(location.search).has("local") ? "" : "https://stimdesu.github.io";  // ?local: tools served next to the hub (dev)
 const TOOLS = [
   { id:"craft", icon:"craft.png", url:"/idleon-craft-planner/", repo:"idleon-craft-planner", hashNick:true,
-    langKey:"cp-lang", srcKey:"cp-src", hide:".wrap > header, .wrap > .card:first-of-type",
+    langKey:"cp-lang", srcKey:"cp-src", hide:".wrap > header, .wrap > div.card:has(#nickForm)",
     nick:{ input:"#nick", form:"#nickForm" }, raw:{ input:"#save", btn:"#go" },
     en:{ name:"Craft Planner", desc:"Anvil tabs with game icons, a plan of what to craft, materials you have and miss, and how much ore to smelt." },
     ru:{ name:"Планировщик крафта", desc:"Вкладки наковальни с игровыми иконками, план крафта, какие материалы есть и чего не хватает, сколько руды переплавить." },
